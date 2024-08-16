@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import XBtn from "../../../public/x-btn.png";
 
 interface ExamDets {
   exam: string;
@@ -32,10 +34,11 @@ const PreviewQuestions: React.FC = () => {
     setEditableQuestion(index);
   };
 
-  const handleSave = (index: number) => {
-    setEditableQuestion(null);
-    // Optionally, save the updated questions to localStorage or an API here.
-    localStorage.setItem("questions", JSON.stringify(questions));
+  const handleSave = () => {
+    if (editableQuestion !== null) {
+      setEditableQuestion(null);
+      localStorage.setItem("questions", JSON.stringify(questions));
+    }
   };
 
   const handleQuestionChange = (index: number, value: string) => {
@@ -62,6 +65,12 @@ const PreviewQuestions: React.FC = () => {
     }
   };
 
+  const handleRemoveOption = (questionIndex: number, optionIndex: number) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].options.splice(optionIndex, 1);
+    setQuestions(updatedQuestions);
+  };
+
   return (
     <div
       className="flex items-center justify-center min-h-screen p-4"
@@ -77,9 +86,9 @@ const PreviewQuestions: React.FC = () => {
           Preview Questions{" - "}
           <span className="text-[18px]">
             {examDets?.exam
-              .slice(0, 1)
-              .toLocaleUpperCase()
-              .concat(examDets.exam.slice(1).toLocaleLowerCase())}{" "}
+              ?.slice(0, 1)
+              .toUpperCase()
+              .concat(examDets.exam.slice(1).toLowerCase())}{" "}
             {examDets?.subject} {examDets?.year}
           </span>
         </h2>
@@ -100,28 +109,39 @@ const PreviewQuestions: React.FC = () => {
                     rows={4}
                   />
                   {question.options.map((option, optionIndex) => (
-                    <input
-                      key={optionIndex}
-                      type="text"
-                      value={option}
-                      onChange={(e) =>
-                        handleOptionChange(index, optionIndex, e.target.value)
-                      }
-                      className="w-full border border-gray-300 rounded p-2 mb-2 text-black"
-                    />
+                    <div key={optionIndex} className="flex items-center mb-2">
+                      <input
+                        type="text"
+                        value={option}
+                        onChange={(e) =>
+                          handleOptionChange(index, optionIndex, e.target.value)
+                        }
+                        className="w-full border border-gray-300 rounded p-2 text-black"
+                      />
+                      {question.options.length > 4 && (
+                        <Image
+                          src={XBtn}
+                          alt="Remove option"
+                          width={24}
+                          height={24}
+                          onClick={() => handleRemoveOption(index, optionIndex)}
+                          className="ml-2 cursor-pointer"
+                        />
+                      )}
+                    </div>
                   ))}
                   <div className="flex justify-end gap-6">
                     {question.options.length < 6 && (
                       <button
                         onClick={() => handleAddOption(index)}
-                        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mb-2"
+                        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                       >
                         Add Option
                       </button>
                     )}
                     <button
-                      onClick={() => handleSave(index)}
-                      className="bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-2 px-3"
+                      onClick={handleSave}
+                      className="bg-green-500 text-white p-2 rounded hover:bg-green-600 px-3"
                     >
                       Save
                     </button>
@@ -160,8 +180,9 @@ const PreviewQuestions: React.FC = () => {
           ))}
         </div>
         <button
-          onClick={() => handleSave(editableQuestion!)}
+          onClick={handleSave}
           className="bg-indigo-600 text-white p-3 rounded-lg mt-6 hover:bg-indigo-700 w-full"
+          disabled={editableQuestion === null} // Disable button if no question is being edited
         >
           Submit
         </button>
