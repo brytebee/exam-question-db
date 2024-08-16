@@ -72,7 +72,7 @@ const QuestionForm: React.FC = () => {
     if (fileInput) fileInput.value = "";
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAddQuestion = (e: React.FormEvent) => {
     e.preventDefault();
     const updatedQuestions = [...questions, currentQuestion];
     setQuestions(updatedQuestions);
@@ -90,10 +90,14 @@ const QuestionForm: React.FC = () => {
     totalQuestions !== null && questions.length + 1 === totalQuestions;
 
   const handlePreview = () => {
-    const updatedQuestions = [...questions, currentQuestion];
-    setQuestions(updatedQuestions);
-    localStorage.setItem("questions", JSON.stringify(updatedQuestions));
-    router.push("/preview");
+    if (
+      currentQuestion.question.trim() &&
+      currentQuestion.options.every((option) => option.trim())
+    ) {
+      const updatedQuestions = [...questions, currentQuestion];
+      localStorage.setItem("questions", JSON.stringify(updatedQuestions));
+      router.push("/preview");
+    }
   };
 
   return (
@@ -108,7 +112,7 @@ const QuestionForm: React.FC = () => {
         <h2 className="text-3xl font-bold mb-6 text-indigo-800">
           Enter Questions
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleAddQuestion} className="space-y-6">
           <div className="flex flex-col">
             <label
               htmlFor="question"
