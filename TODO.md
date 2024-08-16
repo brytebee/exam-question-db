@@ -1,0 +1,5 @@
+- [ ] Handle images
+- [ ] Handle Submit
+- [ ] Handle DB
+- [ ] Clean ups
+- [ ] Host
