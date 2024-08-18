@@ -17,6 +17,7 @@ const QuestionForm: React.FC = () => {
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
   const [showFileInput, setShowFileInput] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -55,13 +56,35 @@ const QuestionForm: React.FC = () => {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setUploadedFileName(file.name);
-      // Assuming you have an upload function that returns the URL
-      // const url = await uploadImage(file);
-      // setCurrentQuestion((prev) => ({ ...prev, imageUrl: url }));
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_UPLOAD_PRESET as string
+      );
+      formData.append(
+        "cloud_name",
+        process.env.NEXT_PUBLIC_CLOUD_NAME as string
+      );
+
+      // Upload to Cloudinary
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_CLOUDINARY_URL as string,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await res.json();
+      const { secure_url, display_name, format } = data;
+
+      setFileName(`${display_name?.slice(0, 10)}...${format}`);
+      setUploadedFileName(secure_url);
+      setCurrentQuestion((prev) => ({ ...prev, imageUrl: secure_url }));
     }
   };
 
@@ -190,14 +213,23 @@ const QuestionForm: React.FC = () => {
               <div className="flex items-center mb-4 space-x-5">
                 {uploadedFileName ? (
                   <div className="flex items-center space-x-4">
-                    <span className="text-gray-700">{uploadedFileName}</span>
-                    <button
-                      type="button"
+                    <div>
+                      <Image
+                        src={uploadedFileName}
+                        alt="question sketch"
+                        width={100}
+                        height={100}
+                      />
+                    </div>
+                    <span className="text-gray-700">{fileName}</span>
+                    <Image
+                      src={XBtn}
+                      alt="cancel"
+                      width={20}
+                      height={20}
                       onClick={handleRemoveFile}
-                      className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-                    >
-                      Remove
-                    </button>
+                      className="ml-2 cursor-pointer"
+                    />
                   </div>
                 ) : (
                   <input
