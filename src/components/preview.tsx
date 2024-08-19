@@ -23,6 +23,7 @@ const PreviewQuestions: React.FC = () => {
   >([]);
   const [editableQuestion, setEditableQuestion] = useState<number | null>(null);
   const [examDets, setExamDets] = useState<ExamDets | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false); // State for submission
 
   useEffect(() => {
     const storedInfo = localStorage.getItem("examInfo");
@@ -87,11 +88,12 @@ const PreviewQuestions: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("Submit clicked!");
     if (!examDets) {
       toast.error("Exam details are missing.");
       return;
     }
+
+    setIsSubmitting(true); // Set submission state to true
 
     try {
       const response = await fetch("/api/questions", {
@@ -120,6 +122,8 @@ const PreviewQuestions: React.FC = () => {
       // router.push("/some-page"); // Example redirect
     } catch (error) {
       toast.error((error as Error).message);
+    } finally {
+      setIsSubmitting(false); // Reset submission state
     }
   };
 
@@ -258,10 +262,40 @@ const PreviewQuestions: React.FC = () => {
         </div>
         <button
           onClick={handleSubmit}
-          className="bg-indigo-600 text-white p-3 rounded-lg mt-6 hover:bg-indigo-700 w-full"
-          disabled={editableQuestion !== null} // Disable button if no question is being edited
+          className={`bg-indigo-600 text-white p-3 rounded-lg mt-6 hover:bg-indigo-700 w-full ${
+            isSubmitting || editableQuestion !== null
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+          disabled={editableQuestion !== null || isSubmitting} // Disable button if no question is being edited or if submitting
         >
-          Submit
+          {isSubmitting ? (
+            <div className="flex items-center justify-center">
+              <svg
+                className="w-5 h-5 mr-3 text-white animate-spin"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v3.29a5 5 0 00-4 4.71H4z"
+                ></path>
+              </svg>
+              Submitting...
+            </div>
+          ) : (
+            "Submit"
+          )}
         </button>
       </div>
     </div>
