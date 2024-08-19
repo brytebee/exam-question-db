@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, FormEvent } from "react";
+import { toast } from "react-toastify";
 
 interface ExamFormState {
   exam: string;
@@ -36,6 +37,9 @@ const AddExamForm: React.FC = () => {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     const { exam, subject, year, totalQuestions } = formState;
+    if (+totalQuestions < 1) {
+      toast.error("Update your total question to be greater than 0!");
+    }
     if (exam && subject && year && totalQuestions) {
       router.push("/add-questions");
     }
