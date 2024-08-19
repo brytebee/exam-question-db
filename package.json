@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/postgres": "^0.9.0",
     "axios": "^1.7.3",
     "cloudinary": "^2.4.0",
     "fs": "^0.0.1-security",
