@@ -1,5 +1,6 @@
 - [ ] Handle images
 - [ ] Handle Submit
 - [ ] Handle DB
+- [ ] Add answers
 - [ ] Clean ups
 - [ ] Host
