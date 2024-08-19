@@ -1,6 +1,13 @@
-- [ ] Handle images
-- [ ] Handle Submit
-- [ ] Handle DB
-- [ ] Add answers
+- [x] Handle images
+- [x] Handle Submit
+- [x] Handle DB
+- [x] Add answers
+- [x] Host
+- [ ] Add users
+  - [ ] User would only manage they resources
+  - [ ] User has 2 roles ['admin', 'user']: I am admin and school/teachers are users.
 - [ ] Clean ups
-- [ ] Host
+  - [ ] Move pure functions out
+  - [ ] See how you might break the components into smaller chunks to be more manageable
+- [ ] Perform full CRUD operations
+- [ ] Add a nav-bar that can be completely hidden
