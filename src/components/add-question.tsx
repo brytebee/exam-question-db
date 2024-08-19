@@ -88,9 +88,9 @@ const QuestionForm: React.FC = () => {
         }
       );
       const data = await res.json();
-      const { secure_url, display_name, format } = data;
+      const { secure_url, original_filename, format } = data;
 
-      setFileName(`${display_name?.slice(0, 10)}...${format}`);
+      setFileName(`${original_filename?.slice(0, 10)}...${format}`);
       setUploadedFileName(secure_url);
       setCurrentQuestion((prev) => ({ ...prev, imageUrl: secure_url }));
     }
@@ -151,6 +151,10 @@ const QuestionForm: React.FC = () => {
       router.push("/preview");
     }
   };
+
+  if (totalQuestions && questions.length >= totalQuestions) {
+    router.push("/preview");
+  }
 
   return (
     <div

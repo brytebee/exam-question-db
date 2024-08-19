@@ -14,14 +14,33 @@ interface ExamFormState {
 const AddExamForm: React.FC = () => {
   const router = useRouter();
   const [formState, setFormState] = useState<ExamFormState>(() => {
-    const savedState = localStorage.getItem("examInfo");
-    return savedState
-      ? JSON.parse(savedState)
-      : { exam: "", subject: "", year: "", totalQuestions: "" };
+    if (typeof window !== "undefined") {
+      const savedState = localStorage.getItem("examInfo");
+      return savedState
+        ? JSON.parse(savedState)
+        : { exam: "", subject: "", year: "", totalQuestions: "" };
+    }
+    return { exam: "", subject: "", year: "", totalQuestions: "" };
   });
 
+  // Initialize formState from localStorage only once
   useEffect(() => {
-    localStorage.setItem("examInfo", JSON.stringify(formState));
+    if (typeof window !== "undefined") {
+      const savedState = localStorage.getItem("examInfo");
+      if (savedState) {
+        setFormState(JSON.parse(savedState));
+      }
+    }
+  }, []);
+
+  // Update localStorage only when formState changes and savedState is different
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedState = localStorage.getItem("examInfo");
+      if (JSON.stringify(formState) !== savedState) {
+        localStorage.setItem("examInfo", JSON.stringify(formState));
+      }
+    }
   }, [formState]);
 
   const handleChange = (
@@ -39,6 +58,7 @@ const AddExamForm: React.FC = () => {
     const { exam, subject, year, totalQuestions } = formState;
     if (+totalQuestions < 1) {
       toast.error("Update your total question to be greater than 0!");
+      return;
     }
     if (exam && subject && year && totalQuestions) {
       router.push("/add-questions");
