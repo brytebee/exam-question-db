@@ -13,7 +13,12 @@ interface ExamDets {
 
 const PreviewQuestions: React.FC = () => {
   const [questions, setQuestions] = useState<
-    { question: string; options: string[]; imageUrl?: string }[]
+    {
+      question: string;
+      options: string[];
+      correctAnswer?: number;
+      imageUrl?: string;
+    }[]
   >([]);
   const [editableQuestion, setEditableQuestion] = useState<number | null>(null);
   const [examDets, setExamDets] = useState<ExamDets | null>(null);
@@ -71,6 +76,15 @@ const PreviewQuestions: React.FC = () => {
     setQuestions(updatedQuestions);
   };
 
+  const handleCorrectAnswerChange = (
+    questionIndex: number,
+    optionIndex: number
+  ) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].correctAnswer = optionIndex;
+    setQuestions(updatedQuestions);
+  };
+
   return (
     <div
       className="flex items-center justify-center min-h-screen p-4"
@@ -96,7 +110,9 @@ const PreviewQuestions: React.FC = () => {
           {questions.map((question, index) => (
             <div
               key={index}
-              className="border border-gray-300 p-4 rounded-lg bg-gray-50 shadow-sm"
+              className={`${
+                editableQuestion === index && "border-yellow-500 border-2"
+              } border border-gray-300 p-4 rounded-lg bg-gray-50 shadow-sm`}
             >
               {editableQuestion === index ? (
                 <div>
@@ -109,7 +125,14 @@ const PreviewQuestions: React.FC = () => {
                     rows={4}
                   />
                   {question.options.map((option, optionIndex) => (
-                    <div key={optionIndex} className="flex items-center mb-2">
+                    <div
+                      key={optionIndex}
+                      className={`flex items-center mb-2 ${
+                        question.correctAnswer === optionIndex
+                          ? "border-2 border-green-500 bg-green-100"
+                          : ""
+                      }`}
+                    >
                       <input
                         type="text"
                         value={option}
@@ -118,6 +141,15 @@ const PreviewQuestions: React.FC = () => {
                         }
                         className="w-full border border-gray-300 rounded p-2 text-black"
                       />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCorrectAnswerChange(index, optionIndex)
+                        }
+                        className="ml-2 bg-blue-500 text-white p-1 rounded hover:bg-blue-600"
+                      >
+                        Mark Correct
+                      </button>
                       {question.options.length > 4 && (
                         <Image
                           src={XBtn}
@@ -169,7 +201,14 @@ const PreviewQuestions: React.FC = () => {
                   )}
                   <ol type="a" className="list-decimal pl-5 mt-3 text-gray-700">
                     {question.options.map((option, i) => (
-                      <li key={i} className="mt-1">
+                      <li
+                        key={i}
+                        className={`mt-1 ${
+                          question.correctAnswer === i
+                            ? "border-l-4 border-b-2 border-green-500 bg-green-50"
+                            : ""
+                        }`}
+                      >
                         {option}
                       </li>
                     ))}
