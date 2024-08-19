@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  
+  // Uses connection pooling
+  url       = env("POSTGRES_PRISMA_URL")
+  
+  // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
+  // or you'll have dangling databases from migrations
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model ExamInfo {
+  id             String     @id @default(cuid())
+  exam           String
+  subject        String
+  year           String
+  totalQuestions Int
+  questions      Question[]
+
+  @@unique([exam, subject, year])
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  question      String
+  options       String[]
+  correctAnswer Int?
+  imageUrl      String?
+  examId        String
+  exam          ExamInfo @relation(fields: [examId], references: [id])
+
+  @@index([examId])
+}
