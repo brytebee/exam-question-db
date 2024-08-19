@@ -126,7 +126,7 @@ const QuestionForm: React.FC = () => {
       imageUrl: "",
     });
     setUploadedFileName(null);
-    setCorrectAnswer(null); // Reset correct answer for next question
+    setCorrectAnswer(null);
   };
 
   const isLastQuestion =

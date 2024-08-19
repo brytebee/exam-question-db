@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import XBtn from "/public/x-btn.png";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 interface ExamDets {
   exam: string;
@@ -13,6 +14,7 @@ interface ExamDets {
 }
 
 const PreviewQuestions: React.FC = () => {
+  const router = useRouter();
   const [questions, setQuestions] = useState<
     {
       question: string;
@@ -114,12 +116,12 @@ const PreviewQuestions: React.FC = () => {
       const result = await response.json();
       toast.success(result.message || "Questions saved successfully.");
 
-      // Optionally, clear local storage or redirect the user
+      // Clear local storage or redirect the user
       localStorage.removeItem("questions");
       localStorage.removeItem("examInfo");
 
-      // Redirect or perform any other action as needed
-      // router.push("/some-page"); // Example redirect
+      // Redirect
+      router.push("/view-questions");
     } catch (error) {
       toast.error((error as Error).message);
     } finally {

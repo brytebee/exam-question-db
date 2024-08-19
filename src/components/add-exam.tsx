@@ -23,7 +23,6 @@ const AddExamForm: React.FC = () => {
     return { exam: "", subject: "", year: "", totalQuestions: "" };
   });
 
-  // Initialize formState from localStorage only once
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedState = localStorage.getItem("examInfo");
@@ -33,7 +32,6 @@ const AddExamForm: React.FC = () => {
     }
   }, []);
 
-  // Update localStorage only when formState changes and savedState is different
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedState = localStorage.getItem("examInfo");
