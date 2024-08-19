@@ -4,16 +4,24 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import XBtn from "../../../public/x-btn.png";
+import { toast } from "react-toastify";
 
 const QuestionForm: React.FC = () => {
   const [questions, setQuestions] = useState<
-    { question: string; options: string[]; imageUrl?: string }[]
+    {
+      question: string;
+      options: string[];
+      correctAnswer: number | null;
+      imageUrl?: string;
+    }[]
   >([]);
   const [currentQuestion, setCurrentQuestion] = useState({
     question: "",
     options: ["", "", "", ""],
+    correctAnswer: null,
     imageUrl: "",
   });
+  const [correctAnswer, setCorrectAnswer] = useState<number | null>(null);
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
   const [showFileInput, setShowFileInput] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -97,16 +105,28 @@ const QuestionForm: React.FC = () => {
 
   const handleAddQuestion = (e: React.FormEvent) => {
     e.preventDefault();
-    const updatedQuestions = [...questions, currentQuestion];
+
+    // Check if a correct answer is selected
+    if (correctAnswer === null) {
+      toast.error("Please select the correct answer.");
+      return;
+    }
+
+    const updatedQuestions = [
+      ...questions,
+      { ...currentQuestion, correctAnswer },
+    ];
     setQuestions(updatedQuestions);
     localStorage.setItem("questions", JSON.stringify(updatedQuestions));
 
     setCurrentQuestion({
       question: "",
       options: ["", "", "", ""],
+      correctAnswer: null,
       imageUrl: "",
     });
     setUploadedFileName(null);
+    setCorrectAnswer(null); // Reset correct answer for next question
   };
 
   const isLastQuestion =
@@ -117,7 +137,16 @@ const QuestionForm: React.FC = () => {
       currentQuestion.question.trim() &&
       currentQuestion.options.every((option) => option.trim())
     ) {
-      const updatedQuestions = [...questions, currentQuestion];
+      // Check if a correct answer is selected
+      if (correctAnswer === null) {
+        toast.error("Please select the correct answer.");
+        return;
+      }
+
+      const updatedQuestions = [
+        ...questions,
+        { ...currentQuestion, correctAnswer },
+      ];
       localStorage.setItem("questions", JSON.stringify(updatedQuestions));
       router.push("/preview");
     }
@@ -169,6 +198,13 @@ const QuestionForm: React.FC = () => {
                   className="p-3 bg-gray-50 text-gray-800 border border-gray-300 rounded-lg w-full"
                   required
                 />
+                <input
+                  type="radio"
+                  name="correctAnswer"
+                  checked={correctAnswer === index}
+                  onChange={() => setCorrectAnswer(index)}
+                  className="ml-2"
+                />
                 {index === currentQuestion.options.length - 1 &&
                   currentQuestion.options.length < 6 && (
                     <button
@@ -176,7 +212,7 @@ const QuestionForm: React.FC = () => {
                       onClick={handleAddOption}
                       className="ml-2 bg-green-500 text-white p-2 rounded hover:bg-green-600"
                     >
-                      Add Another Option
+                      Add Option
                     </button>
                   )}
                 {currentQuestion.options.length > 4 && (
