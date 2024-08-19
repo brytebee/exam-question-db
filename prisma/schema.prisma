@@ -4,13 +4,57 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  
-  // Uses connection pooling
   url       = env("POSTGRES_PRISMA_URL")
-  
-  // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
-  // or you'll have dangling databases from migrations
   directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String     @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  provider      String?
+  providerId    String?
+  isVerified    Boolean    @default(false)
+  accounts      Account[]
+  sessions      Session[]
+  examInfos     ExamInfo[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model ExamInfo {
@@ -19,6 +63,8 @@ model ExamInfo {
   subject        String
   year           String
   totalQuestions Int
+  userId         String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   questions      Question[]
 
   @@unique([exam, subject, year])
