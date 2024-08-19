@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import XBtn from "/public/x-btn.png";
+import { toast } from "react-toastify";
 
 interface ExamDets {
   exam: string;
   subject: string;
   year: string;
-  [key: string]: unknown;
+  totalQuestions: number;
 }
 
 const PreviewQuestions: React.FC = () => {
@@ -83,6 +84,43 @@ const PreviewQuestions: React.FC = () => {
     const updatedQuestions = [...questions];
     updatedQuestions[questionIndex].correctAnswer = optionIndex;
     setQuestions(updatedQuestions);
+  };
+
+  const handleSubmit = async () => {
+    console.log("Submit clicked!");
+    if (!examDets) {
+      toast.error("Exam details are missing.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          questions,
+          examInfo: examDets,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save questions.");
+      }
+
+      const result = await response.json();
+      toast.success(result.message || "Questions saved successfully.");
+
+      // Optionally, clear local storage or redirect the user
+      localStorage.removeItem("questions");
+      localStorage.removeItem("examInfo");
+
+      // Redirect or perform any other action as needed
+      // router.push("/some-page"); // Example redirect
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
   };
 
   return (
@@ -219,9 +257,9 @@ const PreviewQuestions: React.FC = () => {
           ))}
         </div>
         <button
-          onClick={handleSave}
+          onClick={handleSubmit}
           className="bg-indigo-600 text-white p-3 rounded-lg mt-6 hover:bg-indigo-700 w-full"
-          disabled={editableQuestion === null} // Disable button if no question is being edited
+          disabled={editableQuestion !== null} // Disable button if no question is being edited
         >
           Submit
         </button>
