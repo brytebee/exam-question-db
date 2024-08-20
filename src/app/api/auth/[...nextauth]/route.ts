@@ -68,35 +68,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
   },
-  // events: {
-  //   async createUser({ user }) {
-  //     const token = randomBytes(32).toString("hex");
-  //     const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token}&email=${user.email}`;
-
-  //     await prisma.verificationToken.create({
-  //       data: {
-  //         identifier: user.email!,
-  //         token,
-  //         expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // Token expires in 24 hours
-  //       },
-  //     });
-
-  //     const transporter = nodemailer.createTransport({
-  //       service: "Gmail",
-  //       auth: {
-  //         user: process.env.EMAIL_FROM,
-  //         pass: process.env.EMAIL_PASSWORD,
-  //       },
-  //     });
-
-  //     await transporter.sendMail({
-  //       from: process.env.EMAIL_FROM,
-  //       to: user.email!,
-  //       subject: "Verify your email address",
-  //       html: `<p>Please verify your email address by clicking on the link below:</p><p><a href="${verificationUrl}">Verify Email</a></p>`,
-  //     });
-  //   },
-  // },
   pages: {
     signIn: "/auth/signin",
     error: "/auth/error",
