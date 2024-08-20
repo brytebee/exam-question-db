@@ -59,7 +59,7 @@ const AddExamForm: React.FC = () => {
       return;
     }
     if (exam && subject && year && totalQuestions) {
-      router.push("/add-questions");
+      router.push("/exam/add-questions");
     }
   };
 

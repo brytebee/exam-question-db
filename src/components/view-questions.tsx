@@ -98,7 +98,7 @@ const ViewQuestionsPage: React.FC = () => {
 
         {noData ? (
           <Link
-            href="/add-exam"
+            href="/exam/add-exam"
             className="bg-yellow-500 text-white p-3 rounded-lg hover:bg-yellow-600 w-full text-center"
           >
             Add an Exam

@@ -23,7 +23,7 @@ const ConfirmationPage = () => (
           Back to Home
         </Link>
         <Link
-          href="/add-exam"
+          href="/exam/add-exam"
           className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 block"
         >
           Add Another Exam

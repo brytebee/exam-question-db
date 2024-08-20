@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
         </p>
         <div className="flex flex-col space-y-4">
           <Link
-            href="/add-exam"
+            href="/exam/add-exam"
             className="bg-blue-500 text-white p-3 rounded hover:bg-blue-600"
           >
             Add New Exam

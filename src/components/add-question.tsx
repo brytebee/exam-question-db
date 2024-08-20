@@ -148,12 +148,12 @@ const QuestionForm: React.FC = () => {
         { ...currentQuestion, correctAnswer },
       ];
       localStorage.setItem("questions", JSON.stringify(updatedQuestions));
-      router.push("/preview");
+      router.push("/exam/preview");
     }
   };
 
   if (totalQuestions && questions.length >= totalQuestions) {
-    router.push("/preview");
+    router.push("/exam/preview");
   }
 
   return (

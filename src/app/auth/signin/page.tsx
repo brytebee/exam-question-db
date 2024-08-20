@@ -29,7 +29,7 @@ const SignInPage = () => {
         setTimeout(() => {
           toast.success("Sign in successfully!");
         }, 2000);
-        router.push("/add-exam");
+        router.push("/exam/add-exam");
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

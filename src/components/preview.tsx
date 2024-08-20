@@ -121,7 +121,7 @@ const PreviewQuestions: React.FC = () => {
       localStorage.removeItem("examInfo");
 
       // Redirect
-      router.push("/view-questions");
+      router.push("/exam/view-questions");
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
