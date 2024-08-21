@@ -5,7 +5,7 @@ import { authOptions } from "../../api/auth/[...nextauth]/route";
 
 export default async function page() {
   const session = await getServerSession(authOptions);
-  console.log(session);
+  console.log({ session });
 
   return <AddExamForm />;
 }

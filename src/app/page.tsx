@@ -23,7 +23,7 @@ const HomePage: React.FC = () => {
             Add New Exam
           </Link>
           <Link
-            href="/view-questions"
+            href="/exam/view-questions"
             className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
           >
             View Questions

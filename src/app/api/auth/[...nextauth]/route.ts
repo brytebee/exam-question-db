@@ -46,6 +46,8 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Please verify your email to continue.");
         }
 
+        console.log(user);
+
         return {
           id: user.id,
           email: user.email,
@@ -56,12 +58,15 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session, token, user }: any) {
+      console.log({ session, token, user }); // this doesn't print
+
       if (session.user) {
         session.user.id = user.id;
       }
       return session;
     },
     async jwt({ token, user }) {
+      console.log({ token, user }); // this prints
       if (user) {
         token.id = user.id;
       }

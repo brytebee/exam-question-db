@@ -11,3 +11,5 @@
   - [ ] See how you might break the components into smaller chunks to be more manageable
 - [ ] Perform full CRUD operations
 - [ ] Add a nav-bar that can be completely hidden
+
+- [ ] There's a build and deployment error
