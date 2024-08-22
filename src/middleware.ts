@@ -10,6 +10,7 @@ export async function middleware(req: NextRequest) {
     "/exam/add-questions",
     "/exam/preview",
     "/exam/confirmation",
+    "/exam/view-exams",
     "/exam/view-questions",
   ];
 

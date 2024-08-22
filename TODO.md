@@ -3,9 +3,10 @@
 - [x] Handle DB
 - [x] Add answers
 - [x] Host
+- [x] Add Auth
 - [ ] Add users
-  - [ ] User would only manage they resources
-  - [ ] User has 2 roles ['admin', 'user']: I am admin and school/teachers are users.
+  - [ ] User would only manage their resources
+  - [ ] User has 3 roles ['admin', 'manager', 'user']: I am admin and school/teachers are users. The manager would ensure the integrity of question ans mark them ready for app DB use
 - [ ] Clean ups
   - [ ] Move pure functions out
   - [ ] See how you might break the components into smaller chunks to be more manageable
