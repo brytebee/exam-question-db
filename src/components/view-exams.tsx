@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Spinner from "@/commons/Spinner";
+import Spinner from "@/commons/Spinner-mui";
 
 interface ExamInfo {
   id: string;
@@ -78,6 +78,7 @@ const ViewExams: React.FC = () => {
       }}
     >
       {loading && <Spinner text="Loading exams!" />}
+      {/* {loading && <Spinner />} */}
 
       <div className="max-w-2xl w-full bg-white shadow-lg rounded-lg p-8 py-12 relative z-10">
         <h1 className="text-4xl font-bold mb-6 text-indigo-800">

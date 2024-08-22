@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Spinner from "@/commons/Spinner";
+import Spinner from "@/commons/Spinner-mui";
 import { useSession } from "next-auth/react";
 
 interface Question {
