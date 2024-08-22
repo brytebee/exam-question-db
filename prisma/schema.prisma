@@ -13,6 +13,7 @@ model User {
   name          String?
   email         String     @unique
   emailVerified DateTime?
+  role          Role       @default(USER)
   image         String?
   password      String?
   provider      String?
@@ -21,6 +22,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   examInfos     ExamInfo[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @default(now()) @updatedAt
 }
 
 model Account {
@@ -66,6 +69,8 @@ model ExamInfo {
   userId         String
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   questions      Question[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @default(now()) @updatedAt
 
   @@unique([exam, subject, year])
 }
@@ -78,6 +83,13 @@ model Question {
   imageUrl      String?
   examId        String
   exam          ExamInfo @relation(fields: [examId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
   @@index([examId])
+}
+
+enum Role {
+  ADMIN
+  USER
 }
