@@ -1,26 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Spinner from "@/commons/Spinner";
-import { useSession } from "next-auth/react";
 
-interface Question {
+interface ExamInfo {
   id: string;
-  question: string;
-  options: string[];
-  correctAnswer?: number;
-  imageUrl?: string;
+  exam: string;
+  subject: string;
+  year: number;
 }
 
-interface ViewQuestProps {
-  examId: string;
-}
-
-const ViewQuestions = ({ examId }: ViewQuestProps) => {
-  const { data: _, status } = useSession();
+const ViewExams: React.FC = () => {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [examInfoList, setExamInfoList] = useState<ExamInfo[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -31,24 +27,21 @@ const ViewQuestions = ({ examId }: ViewQuestProps) => {
     } else if (status === "authenticated") {
       setLoading(true);
 
-      (async () => await fetchQuestions())();
+      (async () => await fetchExamInfo())();
     }
   }, [currentPage]);
 
-  console.log(examId);
-
-  const fetchQuestions = async () => {
+  const fetchExamInfo = async () => {
     try {
       const response = await fetch(
-        `/api/questions?page=${currentPage}&examId=${examId}`
+        // @ts-ignore
+        `/api/exams?page=${currentPage}&userId=${session?.user?.id}`
       );
       const data = await response.json();
-      console.log(data);
-
-      setQuestions(data.questions);
+      setExamInfoList(data.exams);
       setTotalPages(data.totalPages);
     } catch (error) {
-      console.error("Error fetching questions:", error);
+      console.error("Error fetching exam info:", error);
     } finally {
       setLoading(false);
     }
@@ -77,61 +70,65 @@ const ViewQuestions = ({ examId }: ViewQuestProps) => {
   );
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 relative">
-      {loading && <Spinner text="Loading questions!" />}
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center p-4 relative"
+      style={{
+        backgroundImage:
+          "url('https://static.vecteezy.com/system/resources/thumbnails/006/240/296/small_2x/idyllic-mountain-landscape-with-fresh-green-meadows-and-blooming-wildflowers-idyllic-nature-countryside-view-rural-outdoor-natural-view-idyllic-banner-nature-panoramic-spring-summer-scenery-photo.jpg')",
+      }}
+    >
+      {loading && <Spinner text="Loading exams!" />}
 
-      <div className="max-w-4xl w-full bg-white shadow-lg rounded-lg p-8 py-12 relative z-10">
-        <h1 className="text-4xl font-bold mb-6 text-indigo-800">Questions</h1>
+      <div className="max-w-2xl w-full bg-white shadow-lg rounded-lg p-8 py-12 relative z-10">
+        <h1 className="text-4xl font-bold mb-6 text-indigo-800">
+          Exam Information
+        </h1>
 
-        {questions?.length > 0 ? (
+        {examInfoList?.length > 0 ? (
           <div className="space-y-6 max-h-[60vh] overflow-y-auto">
-            {questions.map((question) => (
+            {examInfoList.map((examInfo) => (
               <div
-                key={question.id}
+                key={examInfo.id}
                 className="border border-gray-300 p-4 rounded-lg bg-gray-50 shadow-sm"
               >
                 <p className="font-medium text-lg text-gray-700">
-                  {question.question}
+                  {examInfo.exam} - {examInfo.subject} ({examInfo.year})
                 </p>
-                {question.imageUrl && (
-                  <img src={question.imageUrl} alt="Question image" />
-                )}
-                <ul className="mt-2 space-y-2">
-                  {question.options.map((option, index) => (
-                    <li
-                      key={index}
-                      className={`p-2 rounded-lg text-gray-700 ${
-                        question.correctAnswer === index
-                          ? "bg-green-100"
-                          : "bg-white"
-                      }`}
-                    >
-                      {option}
-                    </li>
-                  ))}
-                </ul>
+                <Link
+                  href={`/exam/view-exams/${examInfo.id}`}
+                  className="mt-2 inline-block bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600"
+                >
+                  View Questions
+                </Link>
               </div>
             ))}
           </div>
         ) : (
           <p className="text-xl text-red-600 mb-6">
-            No questions available for this exam.
+            No exam information available.
           </p>
         )}
 
         {renderPagination()}
 
         <div className="mt-6">
-          <button
-            onClick={() => router.push("/exam/view-exams")}
+          <Link
+            href="/exam/add-exam"
             className="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 w-full text-center block"
           >
-            Back to Exams
-          </button>
+            Add New Exam
+          </Link>
+          <br />
+          <a
+            href="/"
+            className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 text-center block"
+          >
+            Home Page
+          </a>
         </div>
       </div>
     </div>
   );
 };
 
-export default ViewQuestions;
+export default ViewExams;

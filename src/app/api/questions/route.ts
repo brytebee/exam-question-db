@@ -1,38 +1,22 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/lib/prismaClient";
 import { Question } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const session = await getServerSession(req, res, authOptions);
-
-  if (!session) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
-
-  const examId = req.query.examId as string;
-  const page = parseInt((req.query.page as string) || "1", 10);
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const examId = url.searchParams.get("examId");
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
   const limit = 10;
   const skip = (page - 1) * limit;
 
   if (!examId) {
-    return res.status(400).json({ error: "Exam ID is required" });
+    return NextResponse.json({ error: "Exam ID is required" }, { status: 400 });
   }
 
   try {
     const [questions, totalQuestions] = await Promise.all([
-      prisma.examInfo.findMany({
-        // @ts-ignore
-        where: { userId: session?.user?.id },
+      prisma.question.findMany({
+        where: { examId },
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
@@ -40,14 +24,17 @@ export default async function handler(
       prisma.question.count({ where: { examId } }),
     ]);
 
-    return res.status(200).json({
+    return NextResponse.json({
       questions,
       totalPages: Math.ceil(totalQuestions / limit),
       currentPage: page,
     });
   } catch (error) {
     console.error("Error fetching questions:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 

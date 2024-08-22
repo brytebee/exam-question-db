@@ -1,6 +1,6 @@
-import ViewQuestionsPage from "@/components/view-questions";
+import ViewQuestions from "@/components/view-questions";
 import React from "react";
 
 export default function page() {
-  return <ViewQuestionsPage />;
+  return <ViewQuestions />;
 }
