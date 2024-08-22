@@ -65,8 +65,8 @@ const AddExamForm: React.FC = () => {
 
   const examOptions = ["WAEC", "NECO", "JAMB", "GCE"];
   const subjectOptions = ["Mathematics", "English", "Physics", "Chemistry"];
-  const yearOptions = Array.from({ length: 20 }, (_, i) =>
-    (2000 + i).toString()
+  const yearOptions = Array.from({ length: 10 }, (_, i) =>
+    (2015 + i).toString()
   );
 
   return (

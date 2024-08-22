@@ -5,6 +5,7 @@ import Image from "next/image";
 import XBtn from "/public/x-btn.png";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface ExamDets {
   exam: string;
@@ -15,6 +16,9 @@ interface ExamDets {
 
 const PreviewQuestions: React.FC = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  console.log({ session, status });
+
   const [questions, setQuestions] = useState<
     {
       question: string;
@@ -25,19 +29,23 @@ const PreviewQuestions: React.FC = () => {
   >([]);
   const [editableQuestion, setEditableQuestion] = useState<number | null>(null);
   const [examDets, setExamDets] = useState<ExamDets | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false); // State for submission
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const storedInfo = localStorage.getItem("examInfo");
-    const examInfo = storedInfo ? JSON.parse(storedInfo) : null;
-    if (examInfo && examInfo.totalQuestions) {
-      setExamDets(examInfo);
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+    } else if (status === "authenticated") {
+      const storedInfo = localStorage.getItem("examInfo");
+      const examInfo = storedInfo ? JSON.parse(storedInfo) : null;
+      if (examInfo && examInfo.totalQuestions) {
+        setExamDets(examInfo);
+      }
+      const storedQuestions = localStorage.getItem("questions");
+      if (storedQuestions) {
+        setQuestions(JSON.parse(storedQuestions));
+      }
     }
-    const storedQuestions = localStorage.getItem("questions");
-    if (storedQuestions) {
-      setQuestions(JSON.parse(storedQuestions));
-    }
-  }, []);
+  }, [status, router]);
 
   const handleEdit = (index: number) => {
     setEditableQuestion(index);
@@ -95,7 +103,14 @@ const PreviewQuestions: React.FC = () => {
       return;
     }
 
-    setIsSubmitting(true); // Set submission state to true
+    setIsSubmitting(true);
+
+    console.log({
+      questions,
+      examInfo: examDets,
+      // @ts-ignore
+      userId: session?.user?.id,
+    });
 
     try {
       const response = await fetch("/api/questions", {
@@ -106,6 +121,8 @@ const PreviewQuestions: React.FC = () => {
         body: JSON.stringify({
           questions,
           examInfo: examDets,
+          // @ts-ignore
+          userId: session?.user?.id,
         }),
       });
 
@@ -116,18 +133,20 @@ const PreviewQuestions: React.FC = () => {
       const result = await response.json();
       toast.success(result.message || "Questions saved successfully.");
 
-      // Clear local storage or redirect the user
       localStorage.removeItem("questions");
       localStorage.removeItem("examInfo");
 
-      // Redirect
       router.push("/exam/view-questions");
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
-      setIsSubmitting(false); // Reset submission state
+      setIsSubmitting(false);
     }
   };
+
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div

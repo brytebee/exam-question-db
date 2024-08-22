@@ -1,91 +1,140 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { FaSpinner } from "react-icons/fa";
 
-const SignInPage = () => {
+export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+
+    // Field validations
+    if (!email || !password) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+    // Email format validation
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(email)) {
+      toast.error("Please enter a valid email.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const res = await signIn("credentials", {
+      const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
       });
 
-      if (res?.error) {
-        setError(res.error);
+      console.log(result);
+
+      if (result?.error) {
+        toast.error(result.error);
       } else {
-        setTimeout(() => {
-          toast.success("Sign in successfully!");
-        }, 2000);
-        router.push("/exam/add-exam");
+        toast.success("Signed in successfully!");
+        if (
+          result?.url &&
+          result?.url !== "http://localhost:3000/auth/signin"
+        ) {
+          const lastRoute = result.url
+            .split("?")[1]
+            .split("=")[1]
+            .replaceAll("%2F", "/");
+          router.push(lastRoute);
+        } else {
+          router.push("/exam/add-exam");
+        }
       }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+    } catch (error) {
+      toast.error("Sign-in failed. Please try again.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Sign In</h1>
-      <form
-        onSubmit={handleSignIn}
-        className="w-full max-w-md space-y-4  text-black"
-      >
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        {error && <p className="text-red-600">{error}</p>}
-        <button
-          type="submit"
-          className={`w-full p-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 ${
-            isLoading ? "bg-blue-400 cursor-not-allowed" : ""
-          }`}
-          disabled={isLoading}
-        >
-          {isLoading ? "Signing in..." : "Sign In"}
-        </button>
-      </form>
-      <div className="mt-4">
-        <button
-          onClick={() => signIn("google")}
-          className="w-full p-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200"
-        >
-          Sign in with Google
-        </button>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-700">
+          Sign In
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="email"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="password"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <button
+              type="submit"
+              className={`w-full py-2 px-4 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                loading ? "cursor-not-allowed opacity-50" : ""
+              }`}
+              disabled={loading}
+            >
+              {loading ? (
+                <FaSpinner className="animate-spin text-white mx-auto" />
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </div>
+        </form>
+        <div className="mt-4">
+          <button
+            onClick={() => signIn("google")}
+            className="w-full p-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200"
+          >
+            Sign in with Google
+          </button>
+        </div>
+        <p className="mt-4 text-gray-600">
+          Don’t have an account?{" "}
+          <a href="/auth/register" className="text-blue-600 hover:underline">
+            Sign up
+          </a>
+        </p>
       </div>
-      <p className="mt-4 text-gray-600">
-        Don’t have an account?{" "}
-        <a href="/auth/register" className="text-blue-600 hover:underline">
-          Sign up
-        </a>
-      </p>
     </div>
   );
-};
-
-export default SignInPage;
+}

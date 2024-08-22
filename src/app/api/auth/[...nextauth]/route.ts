@@ -57,16 +57,13 @@ export const authOptions: NextAuthOptions = {
       if (token || user) {
         session.user = { ...user, ...token };
       }
-      console.log("From Callbacks", { session });
-
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.email = user.email; // Add email if needed
+        token.email = user.email;
       }
-      console.log("From Jwt", { token });
       return token;
     },
   },
