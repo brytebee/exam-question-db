@@ -46,30 +46,27 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Please verify your email to continue.");
         }
 
-        console.log(user);
+        const { password, ...userWithNoPassword } = user;
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        };
+        return userWithNoPassword;
       },
     }),
   ],
   callbacks: {
     async session({ session, token, user }: any) {
-      console.log({ session, token, user }); // this doesn't print
-
-      if (session.user) {
-        session.user.id = user.id;
+      if (token || user) {
+        session.user = { ...user, ...token };
       }
+      console.log("From Callbacks", { session });
+
       return session;
     },
     async jwt({ token, user }) {
-      console.log({ token, user }); // this prints
       if (user) {
         token.id = user.id;
+        token.email = user.email; // Add email if needed
       }
+      console.log("From Jwt", { token });
       return token;
     },
   },
@@ -79,6 +76,10 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-const handler = NextAuth(authOptions);
+// const handler = NextAuth(authOptions);
+const handler = NextAuth({
+  ...authOptions,
+  session: { strategy: "jwt", maxAge: 60 * 60 * 24 }, // 1 day compliant with BE
+});
 
 export { handler as GET, handler as POST };
