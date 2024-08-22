@@ -43,10 +43,7 @@ export default function SignInPage() {
         toast.error(result.error);
       } else {
         toast.success("Signed in successfully!");
-        if (
-          result?.url &&
-          result?.url !== "http://localhost:3000/auth/signin"
-        ) {
+        if (result?.url && !result?.url.includes("/auth/signin")) {
           const lastRoute = result.url
             .split("?")[1]
             .split("=")[1]
