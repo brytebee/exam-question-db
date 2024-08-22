@@ -17,8 +17,6 @@ interface ExamDets {
 const PreviewQuestions: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
-  console.log({ session, status });
-
   const [questions, setQuestions] = useState<
     {
       question: string;
@@ -102,16 +100,7 @@ const PreviewQuestions: React.FC = () => {
       toast.error("Exam details are missing.");
       return;
     }
-
     setIsSubmitting(true);
-
-    console.log({
-      questions,
-      examInfo: examDets,
-      // @ts-ignore
-      userId: session?.user?.id,
-    });
-
     try {
       const response = await fetch("/api/questions", {
         method: "POST",
