@@ -43,9 +43,9 @@ export async function POST(request: Request) {
   });
 
   // Send verification email
-  const EMAIL_LINK = process.env.EMAIL_ENDPOINT?.toString();
-  const from = process.env.DOMAIN?.toString();
-  const product = process.env.PRODUCT?.toString();
+  const EMAIL_LINK = process.env.NEXT_PUBLIC_EMAIL_ENDPOINT?.toString();
+  const from = process.env.NEXT_PUBLIC_DOMAIN?.toString();
+  const product = process.env.NEXT_PUBLIC_PRODUCT?.toString();
 
   if (!EMAIL_LINK || !from || !product) {
     return NextResponse.json(
