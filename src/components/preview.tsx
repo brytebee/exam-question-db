@@ -125,7 +125,7 @@ const PreviewQuestions: React.FC = () => {
       localStorage.removeItem("questions");
       localStorage.removeItem("examInfo");
 
-      router.push("/exam/view-questions");
+      router.push("/exam/view-exams");
     } catch (error) {
       toast.error((error as Error).message);
     } finally {

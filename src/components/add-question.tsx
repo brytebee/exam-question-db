@@ -127,6 +127,7 @@ const QuestionForm: React.FC = () => {
     });
     setUploadedFileName(null);
     setCorrectAnswer(null);
+    setShowFileInput(false);
   };
 
   const isLastQuestion =
