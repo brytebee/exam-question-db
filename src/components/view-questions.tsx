@@ -35,16 +35,12 @@ const ViewQuestions = ({ examId }: ViewQuestProps) => {
     }
   }, [currentPage]);
 
-  console.log(examId);
-
   const fetchQuestions = async () => {
     try {
       const response = await fetch(
         `/api/questions?page=${currentPage}&examId=${examId}`
       );
       const data = await response.json();
-      console.log(data);
-
       setQuestions(data.questions);
       setTotalPages(data.totalPages);
     } catch (error) {
