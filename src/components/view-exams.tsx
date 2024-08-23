@@ -15,6 +15,11 @@ interface ExamInfo {
 
 const ViewExams: React.FC = () => {
   const { data: session, status } = useSession();
+  // @ts-ignore
+  const id = session?.user?.id!;
+  // @ts-ignore
+  const role = session?.user?.role!;
+
   const router = useRouter();
   const [examInfoList, setExamInfoList] = useState<ExamInfo[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +40,7 @@ const ViewExams: React.FC = () => {
     try {
       const response = await fetch(
         // @ts-ignore
-        `/api/exams?page=${currentPage}&userId=${session?.user?.id}`
+        `/api/exams?page=${currentPage}&userId=${id}&role=${role}`
       );
       const data = await response.json();
       setExamInfoList(data.exams);
