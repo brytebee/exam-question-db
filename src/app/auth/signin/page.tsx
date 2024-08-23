@@ -48,7 +48,7 @@ export default function SignInPage() {
             .replaceAll("%2F", "/");
           router.push(lastRoute);
         } else {
-          router.push("/exam/add-exam");
+          router.push("/exam/view-exams");
         }
       }
     } catch (error) {
