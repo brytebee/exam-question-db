@@ -45,6 +45,11 @@ const PreviewQuestions: React.FC = () => {
     }
   }, [status, router]);
 
+  if (questions.length < 1) {
+    toast.info("No questions to preview!");
+    router.push("/exam/add-exam");
+  }
+
   const handleEdit = (index: number) => {
     setEditableQuestion(index);
   };
