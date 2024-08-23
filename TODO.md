@@ -14,3 +14,5 @@
 - [ ] Add a nav-bar that can be completely hidden and it would have a hamburger for mobile.
 
 - [ ] There's a build and deployment error
+- [ ] Introduce state mgt and possibly local store to tackle multiple fetch of same resources in the same session.
+- [ ] Introduce a student role in user and create also a web app for the application.

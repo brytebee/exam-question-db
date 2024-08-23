@@ -153,7 +153,7 @@ const QuestionForm: React.FC = () => {
     }
   };
 
-  if (totalQuestions && questions.length >= totalQuestions) {
+  if (totalQuestions || questions.length >= totalQuestions!) {
     router.push("/exam/preview");
   }
 
