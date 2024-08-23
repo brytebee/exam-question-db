@@ -30,7 +30,6 @@ export async function GET(request: Request) {
       currentPage: page,
     });
   } catch (error) {
-    console.error("Error fetching questions:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -76,7 +75,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "Questions added successfully" });
   } catch (error) {
-    console.error("Error adding questions:", error);
     return NextResponse.error();
   }
 }

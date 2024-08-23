@@ -37,8 +37,6 @@ export default function SignInPage() {
         password,
       });
 
-      console.log(result);
-
       if (result?.error) {
         toast.error(result.error);
       } else {

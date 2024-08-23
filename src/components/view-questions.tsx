@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Spinner from "@/commons/Spinner-mui";
 import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 
 interface Question {
   id: string;
@@ -43,8 +44,12 @@ const ViewQuestions = ({ examId }: ViewQuestProps) => {
       const data = await response.json();
       setQuestions(data.questions);
       setTotalPages(data.totalPages);
-    } catch (error) {
-      console.error("Error fetching questions:", error);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Error fetching questions!");
+      }
     } finally {
       setLoading(false);
     }

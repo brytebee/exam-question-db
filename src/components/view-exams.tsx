@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Spinner from "@/commons/Spinner-mui";
+import { toast } from "react-toastify";
 
 interface ExamInfo {
   id: string;
@@ -45,8 +46,12 @@ const ViewExams: React.FC = () => {
       const data = await response.json();
       setExamInfoList(data.exams);
       setTotalPages(data.totalPages);
-    } catch (error) {
-      console.error("Error fetching exam info:", error);
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Error fetching questions!");
+      }
     } finally {
       setLoading(false);
     }
