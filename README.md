@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Exam-Manager
+
+**Exam-Manager** is a powerful platform designed for educators to efficiently create, view, and manage exams and questions. Built with modern technologies like **Next.js**, **Prisma**, and **Tailwind CSS**, this platform simplifies exam administration and offers a user-friendly interface for dynamic management of educational content.
+
+## Features
+
+- **User Roles**: Support for various user roles, such as Admin, Teacher, and Student, allowing for customized access and permissions.
+- **Exam Management**: Create, update, view, and delete exams seamlessly.
+- **Question Bank**: Manage a library of questions with different types (multiple choice, true/false, etc.).
+- **Dynamic Pagination**: Efficient navigation and management of large sets of questions and exams.
+- **Responsive Design**: Fully responsive layout powered by Tailwind CSS for seamless use across devices.
+- **User-Friendly Interface**: Simplified and intuitive UI/UX for educators and students.
+- **Data Persistence**: All data is stored in a PostgreSQL database via Prisma ORM.
+
+## Tech Stack
+
+- **Frontend**: [Next.js](https://nextjs.org/) - A React framework for building server-side rendered and static websites.
+- **Backend**: Node.js with [Next.js API routes](https://nextjs.org/docs/api-routes/introduction) for managing the server-side logic.
+- **Database**: [Prisma](https://www.prisma.io/) as the ORM for interacting with a PostgreSQL database.
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) for building responsive and modern UI components.
+- **Authentication**: [NextAuth.js](https://next-auth.js.org/) for handling user authentication and session management.
+- **Deployment**: The app can be deployed on platforms like Vercel or Heroku.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Node.js](https://nodejs.org/en/) (v14+)
+- [PostgreSQL](https://www.postgresql.org/) (or any other supported database)
+
+### Installation
+
+1. **Clone the repository**:
+
+   ```bash
+   git clone https://github.com/your-username/exam-manager.git
+   ```
+
+2. **Install dependencies**:
+
+   ```bash
+   cd exam-manager
+   npm install
+   ```
+
+3. **Set up environment variables**:
+
+   Create a `.env` file in the root directory and fill in the following:
+
+   ```bash
+   DATABASE_URL=postgresql://username:password@localhost:5432/exam_manager
+   NEXTAUTH_SECRET=your_secret
+   NEXTAUTH_URL=http://localhost:3000
+   ```
+
+4. **Run database migrations**:
+
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. **Start the development server**:
+
+   ```bash
+   npm run dev
+   ```
+
+   The app will be running on [http://localhost:3000](http://localhost:3000).
+
+### Prisma Studio
+
+To easily manage and inspect the database, use Prisma Studio:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npx prisma studio
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Usage
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Admin Role**: Create and manage exams, questions, and user roles.
+- **Teacher Role**: Access to exam creation and question management.
+- **Student Role**: Ability to view exams and submit answers.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Deployment
 
-## Learn More
+To deploy the application, you'll need to configure the environment variables in the target environment (e.g., Vercel, Heroku) and set up a database.
 
-To learn more about Next.js, take a look at the following resources:
+### Steps for Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Deploy on Vercel**:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   - Push the code to GitHub and connect your repository with Vercel.
+   - Add the environment variables in the Vercel dashboard.
+   - Click on **Deploy**.
 
-## Deploy on Vercel
+2. **Database Setup**:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Ensure that your database URL is correctly set up in the production environment, and that Prisma migrations are applied.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```bash
+npx prisma migrate deploy
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any bugs or feature requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
