@@ -41,6 +41,13 @@ const QuestionForm: React.FC = () => {
     }
   }, []);
 
+  // Add a separate useEffect to handle navigation
+  useEffect(() => {
+    if (totalQuestions !== null && questions.length >= totalQuestions) {
+      router.push("/exam/preview");
+    }
+  }, [questions.length, totalQuestions, router]);
+
   const handleAddOption = () => {
     setCurrentQuestion((prev) => ({
       ...prev,
@@ -152,10 +159,6 @@ const QuestionForm: React.FC = () => {
       router.push("/exam/preview");
     }
   };
-
-  if (totalQuestions || questions.length >= totalQuestions!) {
-    router.push("/exam/preview");
-  }
 
   return (
     <div
