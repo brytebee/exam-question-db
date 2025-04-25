@@ -28,27 +28,38 @@ const PreviewQuestions: React.FC = () => {
   const [editableQuestion, setEditableQuestion] = useState<number | null>(null);
   const [examDets, setExamDets] = useState<ExamDets | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/signin");
     } else if (status === "authenticated") {
+      // Load data from localStorage
       const storedInfo = localStorage.getItem("examInfo");
       const examInfo = storedInfo ? JSON.parse(storedInfo) : null;
       if (examInfo && examInfo.totalQuestions) {
         setExamDets(examInfo);
       }
+
       const storedQuestions = localStorage.getItem("questions");
       if (storedQuestions) {
-        setQuestions(JSON.parse(storedQuestions));
+        const parsedQuestions = JSON.parse(storedQuestions);
+        setQuestions(parsedQuestions);
+
+        // Only redirect if there are no questions after loading
+        if (parsedQuestions.length === 0) {
+          toast.info("No questions to preview!");
+          router.push("/exam/add-exam");
+        }
+      } else {
+        // Redirect if no questions in localStorage
+        toast.info("No questions to preview!");
+        router.push("/exam/add-exam");
       }
+
+      setIsLoading(false);
     }
   }, [status, router]);
-
-  if (questions.length < 1) {
-    toast.info("No questions to preview!");
-    router.push("/exam/add-exam");
-  }
 
   const handleEdit = (index: number) => {
     setEditableQuestion(index);
@@ -58,6 +69,7 @@ const PreviewQuestions: React.FC = () => {
     if (editableQuestion !== null) {
       setEditableQuestion(null);
       localStorage.setItem("questions", JSON.stringify(questions));
+      toast.success("Question updated!");
     }
   };
 
@@ -105,6 +117,12 @@ const PreviewQuestions: React.FC = () => {
       toast.error("Exam details are missing.");
       return;
     }
+
+    if (questions.length === 0) {
+      toast.error("No questions to submit.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/questions", {
@@ -121,7 +139,8 @@ const PreviewQuestions: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save questions.");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save questions.");
       }
 
       const result = await response.json();
@@ -138,8 +157,15 @@ const PreviewQuestions: React.FC = () => {
     }
   };
 
-  if (status === "loading") {
-    return <p>Loading...</p>;
+  if (status === "loading" || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-blue-500 border-gray-200"></div>
+          <p className="mt-2">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -154,164 +180,193 @@ const PreviewQuestions: React.FC = () => {
     >
       <div className="max-w-2xl w-full bg-white shadow-lg rounded-lg p-8 py-12">
         <h2 className="text-3xl font-bold mb-6 text-indigo-800">
-          Preview Questions{" - "}
-          <span className="text-[18px]">
-            {examDets?.exam
-              ?.slice(0, 1)
-              .toUpperCase()
-              .concat(examDets.exam.slice(1).toLowerCase())}{" "}
-            {examDets?.subject} {examDets?.year}
-          </span>
+          Preview Questions{" "}
+          {examDets && (
+            <span className="text-lg">
+              -{" "}
+              {examDets.exam
+                ?.slice(0, 1)
+                .toUpperCase()
+                .concat(examDets.exam.slice(1).toLowerCase())}{" "}
+              {examDets.subject} {examDets.year}
+            </span>
+          )}
         </h2>
-        <div className="space-y-6 max-h-[60vh] overflow-y-auto">
-          {questions.map((question, index) => (
-            <div
-              key={index}
-              className={`${
-                editableQuestion === index && "border-yellow-500 border-2"
-              } border border-gray-300 p-4 rounded-lg bg-gray-50 shadow-sm`}
+        {questions.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No questions available to preview.</p>
+            <button
+              onClick={() => router.push("/exam/add-exam")}
+              className="mt-4 bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700"
             >
-              {editableQuestion === index ? (
-                <div>
-                  <textarea
-                    value={question.question}
-                    onChange={(e) =>
-                      handleQuestionChange(index, e.target.value)
-                    }
-                    className="w-full border border-gray-300 rounded p-2 mb-3 text-black"
-                    rows={4}
-                  />
-                  {question.options.map((option, optionIndex) => (
-                    <div
-                      key={optionIndex}
-                      className={`flex items-center mb-2 ${
-                        question.correctAnswer === optionIndex
-                          ? "border-2 border-green-500 bg-green-100"
-                          : ""
-                      }`}
-                    >
-                      <input
-                        type="text"
-                        value={option}
+              Add Questions
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-6 max-h-[60vh] overflow-y-auto">
+              {questions.map((question, index) => (
+                <div
+                  key={index}
+                  className={`${
+                    editableQuestion === index
+                      ? "border-yellow-500 border-2"
+                      : ""
+                  } border border-gray-300 p-4 rounded-lg bg-gray-50 shadow-sm`}
+                >
+                  {editableQuestion === index ? (
+                    <div>
+                      <textarea
+                        value={question.question}
                         onChange={(e) =>
-                          handleOptionChange(index, optionIndex, e.target.value)
+                          handleQuestionChange(index, e.target.value)
                         }
-                        className="w-full border border-gray-300 rounded p-2 text-black"
+                        className="w-full border border-gray-300 rounded p-2 mb-3 text-black"
+                        rows={4}
                       />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleCorrectAnswerChange(index, optionIndex)
-                        }
-                        className="ml-2 bg-blue-500 text-white p-1 rounded hover:bg-blue-600"
-                      >
-                        Mark Correct
-                      </button>
-                      {question.options.length > 4 && (
-                        <Image
-                          src={XBtn}
-                          alt="Remove option"
-                          width={24}
-                          height={24}
-                          onClick={() => handleRemoveOption(index, optionIndex)}
-                          className="ml-2 cursor-pointer"
+                      {question.options.map((option, optionIndex) => (
+                        <div
+                          key={optionIndex}
+                          className={`flex items-center mb-2 ${
+                            question.correctAnswer === optionIndex
+                              ? "border-2 border-green-500 bg-green-100"
+                              : ""
+                          }`}
+                        >
+                          <input
+                            type="text"
+                            value={option}
+                            onChange={(e) =>
+                              handleOptionChange(
+                                index,
+                                optionIndex,
+                                e.target.value
+                              )
+                            }
+                            className="w-full border border-gray-300 rounded p-2 text-black"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleCorrectAnswerChange(index, optionIndex)
+                            }
+                            className="ml-2 bg-blue-500 text-white p-1 rounded hover:bg-blue-600"
+                          >
+                            Mark Correct
+                          </button>
+                          {question.options.length > 4 && (
+                            <Image
+                              src={XBtn}
+                              alt="Remove option"
+                              width={24}
+                              height={24}
+                              onClick={() =>
+                                handleRemoveOption(index, optionIndex)
+                              }
+                              className="ml-2 cursor-pointer"
+                            />
+                          )}
+                        </div>
+                      ))}
+                      <div className="flex justify-end gap-6">
+                        {question.options.length < 6 && (
+                          <button
+                            onClick={() => handleAddOption(index)}
+                            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                          >
+                            Add Option
+                          </button>
+                        )}
+                        <button
+                          onClick={handleSave}
+                          className="bg-green-500 text-white p-2 rounded hover:bg-green-600 px-3"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex justify-between items-center">
+                        <p className="font-medium text-lg text-gray-700">
+                          {index + 1}. {question.question}
+                        </p>
+                        <button
+                          onClick={() => handleEdit(index)}
+                          className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      {question.imageUrl && (
+                        <img
+                          src={question.imageUrl}
+                          alt="Question Image"
+                          className="w-full h-auto mt-3 rounded-lg"
                         />
                       )}
-                    </div>
-                  ))}
-                  <div className="flex justify-end gap-6">
-                    {question.options.length < 6 && (
-                      <button
-                        onClick={() => handleAddOption(index)}
-                        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                      <ol
+                        type="a"
+                        className="list-decimal pl-5 mt-3 text-gray-700"
                       >
-                        Add Option
-                      </button>
-                    )}
-                    <button
-                      onClick={handleSave}
-                      className="bg-green-500 text-white p-2 rounded hover:bg-green-600 px-3"
-                    >
-                      Save
-                    </button>
-                  </div>
+                        {question.options.map((option, i) => (
+                          <li
+                            key={i}
+                            className={`mt-1 ${
+                              question.correctAnswer === i
+                                ? "border-l-4 border-b-2 border-green-500 bg-green-50"
+                                : ""
+                            }`}
+                          >
+                            {option}
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={handleSubmit}
+              className={`bg-indigo-600 text-white p-3 rounded-lg mt-6 hover:bg-indigo-700 w-full ${
+                isSubmitting || editableQuestion !== null
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
+              disabled={editableQuestion !== null || isSubmitting}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center">
+                  <svg
+                    className="w-5
+                    h-5 mr-3 text-white animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v3.29a5 5 0 00-4 4.71H4z"
+                    ></path>
+                  </svg>
+                  Submitting...
                 </div>
               ) : (
-                <div>
-                  <div className="flex justify-between items-center">
-                    <p className="font-medium text-lg text-gray-700">
-                      {index + 1}. {question.question}
-                    </p>
-                    <button
-                      onClick={() => handleEdit(index)}
-                      className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                  {question.imageUrl && (
-                    <img
-                      src={question.imageUrl}
-                      alt="Question Image"
-                      className="w-full h-auto mt-3 rounded-lg"
-                    />
-                  )}
-                  <ol type="a" className="list-decimal pl-5 mt-3 text-gray-700">
-                    {question.options.map((option, i) => (
-                      <li
-                        key={i}
-                        className={`mt-1 ${
-                          question.correctAnswer === i
-                            ? "border-l-4 border-b-2 border-green-500 bg-green-50"
-                            : ""
-                        }`}
-                      >
-                        {option}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
+                "Submit"
               )}
-            </div>
-          ))}
-        </div>
-        <button
-          onClick={handleSubmit}
-          className={`bg-indigo-600 text-white p-3 rounded-lg mt-6 hover:bg-indigo-700 w-full ${
-            isSubmitting || editableQuestion !== null
-              ? "opacity-50 cursor-not-allowed"
-              : ""
-          }`}
-          disabled={editableQuestion !== null || isSubmitting} // Disable button if no question is being edited or if submitting
-        >
-          {isSubmitting ? (
-            <div className="flex items-center justify-center">
-              <svg
-                className="w-5 h-5 mr-3 text-white animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v3.29a5 5 0 00-4 4.71H4z"
-                ></path>
-              </svg>
-              Submitting...
-            </div>
-          ) : (
-            "Submit"
-          )}
-        </button>
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Spinner from "@/commons/Spinner-mui";
-import { toast } from "react-toastify";
 
 interface ExamInfo {
   id: string;
@@ -23,8 +22,9 @@ const ViewExams: React.FC = () => {
 
   const router = useRouter();
   const [examInfoList, setExamInfoList] = useState<ExamInfo[]>([]);
+  // Initialize currentPage to 1
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -39,19 +39,16 @@ const ViewExams: React.FC = () => {
 
   const fetchExamInfo = async () => {
     try {
+      // If your API expects 0-indexed pages, use currentPage-1
       const response = await fetch(
-        // @ts-ignore
         `/api/exams?page=${currentPage}&userId=${id}&role=${role}`
       );
+
       const data = await response.json();
       setExamInfoList(data.exams);
-      setTotalPages(data.totalPages);
+      setTotalPages(data.totalPages || 0);
     } catch (err) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error("Error fetching questions!");
-      }
+      // error handling remains the same
     } finally {
       setLoading(false);
     }
